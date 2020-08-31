@@ -1,0 +1,28 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+varying mat4 CAMERA;
+uniform float beer_factor = 2.0;
+uniform vec4 hability_color : hint_color;
+uniform float start_distance = 1.0;
+void vertex(){
+	POSITION = vec4(VERTEX, 1.0);
+	CAMERA = CAMERA_MATRIX;
+}
+void fragment(){
+	float depth = texture(DEPTH_TEXTURE, SCREEN_UV).r;
+	depth = depth * 2.0 - 1.0;
+	depth = PROJECTION_MATRIX[3][2] / (depth + PROJECTION_MATRIX[2][2]);
+	depth = depth + VERTEX.z;
+	depth = exp(start_distance - depth * beer_factor);
+	
+	ALBEDO = hability_color.rgb;
+	ALPHA = clamp(1.0 -depth, 0.0, 1.0);
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/beer_factor = 0.0
+shader_param/hability_color = Color( 0.278431, 0, 0.380392, 1 )
+shader_param/start_distance = 3.5
