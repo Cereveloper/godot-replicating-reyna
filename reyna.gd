@@ -47,19 +47,27 @@ func _physics_process(delta: float):
 	if Input.is_action_just_pressed("Ability1"):
 		is_tweening = true
 		emit_signal("use_e_ability")
-		
-	if seeing_orb:
-		emit_signal("see_eye");
-		print("orb is in front:" + str(seeing_orb))
-	else:
-		tween_tp.interpolate_method(self,"_on_Reyna_orb", 1.5, 0.0, 0.5,Tween.TRANS_LINEAR)
-		tween_tp.start()
-		seeing_orb = false
-		print("orb is in front:" + str(seeing_orb))
-#		tween_tp.interpolate_method(self,"_on_Reyna_orb", 0.0, 1.5, 0.5,Tween.TRANS_LINEAR)
+#
+#	var dot_p: float = rotation.direction_to(rey_eye.global_transform.origin).dot(rotation)
+#	var isFront = dot_p > 0.5
+#	if isFront != seeing_orb:
+#		seeing_orb = isFront
+#		if isFront:
+#			emit_signal("see_eye");
+#		else:
+#			tween_tp.interpolate_method(self,"_on_Reyna_orb", 1.5, 0.0, 0.5,Tween.TRANS_LINEAR)
+#			tween_tp.start()
+#			seeing_orb = false
+#			print("orb is in front:" + str(seeing_orb))
+#	if seeing_orb == false:
+#		emit_signal("see_eye")
+#	else:
+#		tween_tp.interpolate_method(self,"_on_Reyna_orb", 1.5, 0.0, 0.5,Tween.TRANS_LINEAR)
 #		tween_tp.start()
-#		yield(tween_tp, "tween_all_completed")
-#		print("I don't see EYE")
+#		seeing_orb = false
+#		print("orb is in front:" + str(seeing_orb))
+
+
 func _on_use_e_ability_use():
 	pass
 #	if current_point == 0:
@@ -88,14 +96,20 @@ func _on_use_e_ability_use():
 #	current_point += 1
 ##	emit_signal("use_e_ability")
 func _on_seeing_reyna_orb():
-	tween_tp.interpolate_method(self,"_on_Reyna_orb", 0.0, 1.5, 0.5,Tween.TRANS_LINEAR)
-	tween_tp.start()
+	pass
+#	seeing_orb = true
+#	tween_tp.interpolate_method(self,"_on_Reyna_orb", 0.0, 1.5, 0.5,Tween.TRANS_LINEAR)
+#	tween_tp.start()
+#	yield(tween_tp,"tween_all_completed")
+
 	
 func _on_Reyna_orb(value):
-	var stencil: ShaderMaterial = get_node(shader_mesh).mesh.surface_get_material(0)
-	stencil.set_shader_param("beer_factor", value)
+	pass
+#	var stencil: ShaderMaterial = get_node(shader_mesh).mesh.surface_get_material(0)
+#	stencil.set_shader_param("beer_factor", value)
 
-
+func _on_eye_launched():
+	print("launched")
 
 func _on_VisibilityNotifier_camera_entered(camera):
 	seeing_orb = true
