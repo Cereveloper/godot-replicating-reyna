@@ -26,6 +26,11 @@ shape = SubResource( 3 )
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 2.0
+
+[node name="eye_visible" type="VisibilityNotifier" parent="."]
+aabb = AABB( -0.5, -0.5, -0.5, 1, 1, 1 )
 [connection signal="body_entered" from="Area" to="." method="_on_Area_body_entered"]
 [connection signal="body_exited" from="Area" to="." method="_on_Area_body_exited"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+[connection signal="camera_entered" from="eye_visible" to="." method="_on_eye_visible_camera_entered"]
+[connection signal="camera_exited" from="eye_visible" to="." method="_on_eye_visible_camera_exited"]

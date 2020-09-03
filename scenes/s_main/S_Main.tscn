@@ -57,13 +57,13 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, -9.53674e-07, 1, 0, 0, 0 )
 shape = SubResource( 2 )
 
 [node name="SlopeWall1" type="MeshInstance" parent="ArenaGeometry"]
-transform = Transform( -1.18125e-06, -2.40367e-07, 0.25, -3.38095, 3.16392, 1.39296e-15, -7.25046, -1.47536, -4.07302e-08, -7.63, 0.147, 1.08 )
+transform = Transform( -1.18125e-06, -2.40367e-07, 0.25, -3.38095, 3.16392, 1.39296e-15, -7.25046, -1.47536, -4.07302e-08, -2.41844, 0.147, 0.381963 )
 use_in_baked_light = true
 mesh = SubResource( 3 )
 material/0 = ExtResource( 7 )
 
 [node name="BigCube1" type="MeshInstance" parent="ArenaGeometry"]
-transform = Transform( -1.74846e-07, 12, -1.31134e-07, 0, -5.24537e-07, -3, -4, -5.24537e-07, 5.73206e-15, -13.5, 2, 6 )
+transform = Transform( -1.74846e-07, 12, -1.31134e-07, 0, -5.24537e-07, -3, -4, -5.24537e-07, 5.73206e-15, -8.28844, 2, 5.30196 )
 use_in_baked_light = true
 mesh = SubResource( 3 )
 material/0 = ExtResource( 7 )
@@ -147,7 +147,9 @@ script = ExtResource( 8 )
 reyna_eye = NodePath("../ReynaEye")
 shader_mesh = NodePath("../ViewportContainer/Viewport/Camera/StencylMesh")
 
-[node name="Camera" parent="Player/Head" index="0"]
+[node name="Camera" parent="Player/Head" index="0" groups=[
+"PlayerCamera",
+]]
 cull_mask = 2147483651
 
 [node name="ReynaTransform" type="RemoteTransform" parent="Player/Head/Camera" index="0"]
