@@ -5,38 +5,23 @@ extends "res://entities/player/player_controller.gd"
 # var a = 2
 # var b = "text"
 
-var backpoints: Array
-var backpoints_rotation: Array
-export var numpoints: int = 20
-export var delay: float = 0.5
-var internal_delay = 0
 var tween_tp: Tween
-var tween_tp_rot: Tween
-var is_tweening = false
-var next_point
-var current_point = 0
+
 export var reyna_eye : NodePath
 export var shader_mesh : NodePath
 var rey_eye: MeshInstance
 
-signal use_e_ability
-
 var seeing_orb : bool = false
+var in_range_orb : bool = false
 var stencil: ShaderMaterial
 var dot_p: float
 var isFront: bool
-var camera 
+var camera
 
-func store_transform():
-	backpoints.push_front(self.global_transform)
-	if backpoints.size() > numpoints :
-		backpoints.pop_back()
-	
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	tween_tp = get_node("Tween") as Tween
-	connect("use_e_ability", self, "_on_use_e_ability_use")
-#	tween_tp.connect("tween_completed", self, "_on_Tween_completed")
 	rey_eye = get_node(reyna_eye) as MeshInstance
 	stencil = get_node(shader_mesh).mesh.surface_get_material(0)
 	camera = get_viewport().get_camera()
@@ -47,19 +32,14 @@ func _physics_process(delta: float):
 #	if rey_eye != null:
 #		dot_p = rotation.direction_to(rey_eye.global_transform.origin).dot(rotation)
 #		isFront = dot_p > 0.5
-	internal_delay += delta
-	if internal_delay > delay and is_tweening == false:
-		store_transform()
-		internal_delay = 0
 
 	if Input.is_action_just_pressed("Ability1"):
-		is_tweening = true
 		emit_signal("use_e_ability")
 	
 
 #	var dot_p: float = rotation.direction_to(rey_eye.global_transform.origin).dot(rotation)
 #	var isFront = dot_p > 0.5
-	var current_value = stencil.get_shader_param("beer_factor")
+#	current_shader_value = stencil.get_shader_param("beer_factor")
 #	if isFront != seeing_orb:
 #		seeing_orb = isFront
 #	if  not result.empty():
@@ -99,19 +79,37 @@ func _on_use_e_ability_use():
 #	current_point += 1
 ##	emit_signal("use_e_ability")
 
-func _on_seeing_reyna_orb():
-	var current_value = stencil.get_shader_param("beer_factor")
-	tween_tp.interpolate_method(self,"_on_Reyna_orb", current_value, 1.5, 0.5,Tween.TRANS_LINEAR)
-	tween_tp.start()
-	yield(tween_tp,"tween_all_completed")
 
-func _on_finish_seeing_reyna_orb():
+func is_seeing_orb_and_in_range():
 	var current_value = stencil.get_shader_param("beer_factor")
-	tween_tp.interpolate_method(self,"_on_Reyna_orb", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
+	if seeing_orb and in_range_orb:
+		tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 1.5, 0.5,Tween.TRANS_LINEAR)
+	else:
+		tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
 	tween_tp.start()
 	yield(tween_tp,"tween_all_completed")
 	
-func _on_Reyna_orb(value):
+func _on_seeing_reyna_orb():
+	seeing_orb = true
+#	var current_value = stencil.get_shader_param("beer_factor")
+#	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 1.5, 0.5,Tween.TRANS_LINEAR)
+#	tween_tp.start()
+#	yield(tween_tp,"tween_all_completed")
+
+func _on_finish_seeing_reyna_orb():
+	seeing_orb = false
+#	var current_value = stencil.get_shader_param("beer_factor")
+#	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
+#	tween_tp.start()
+#	yield(tween_tp,"tween_all_completed")
+
+func _on_reyna_orb_range():
+	in_range_orb = true
+	
+func _on_reyna_orb_exit_range():
+	in_range_orb = false
+
+func interpolate_reyna_orb_effect(value):
 	stencil.set_shader_param("beer_factor", value)
 
 
