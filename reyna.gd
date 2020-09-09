@@ -7,9 +7,7 @@ extends "res://entities/player/player_controller.gd"
 
 var tween_tp: Tween
 
-export var reyna_eye : NodePath
 export var shader_mesh : NodePath
-var rey_eye: MeshInstance
 
 var seeing_orb : bool = false
 var in_range_orb : bool = false
@@ -17,14 +15,22 @@ var stencil: ShaderMaterial
 var dot_p: float
 var isFront: bool
 var camera
+var reyna_eye: MeshInstance
+var blinded: bool = false
+var blind_type
+var dir
+var angle
 
+signal see_eye
+signal finish_see_eye
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	tween_tp = get_node("Tween") as Tween
-	rey_eye = get_node(reyna_eye) as MeshInstance
 	stencil = get_node(shader_mesh).mesh.surface_get_material(0)
 	camera = get_viewport().get_camera()
+	connect("see_eye", self, "_on_see_eye")
+	connect("finish_see_eye", self, "_on_finish_see_eye")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -36,20 +42,19 @@ func _physics_process(delta: float):
 	if Input.is_action_just_pressed("Ability1"):
 		emit_signal("use_e_ability")
 	
+	if reyna_eye:
+		dir = self.global_transform.origin - reyna_eye.global_transform.origin
+		var b = self.transform.basis.z
+		angle = rad2deg(b.angle_to(dir))
 
-#	var dot_p: float = rotation.direction_to(rey_eye.global_transform.origin).dot(rotation)
-#	var isFront = dot_p > 0.5
-#	current_shader_value = stencil.get_shader_param("beer_factor")
-#	if isFront != seeing_orb:
-#		seeing_orb = isFront
-#	if  not result.empty():
-#		emit_signal("see_eye");
-#	else:
-#		tween_tp.interpolate_method(self,"_on_Reyna_orb", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
-#		tween_tp.start()
-#		seeing_orb = false
-#		print("orb is in front:" + str(seeing_orb))
+		if abs(angle) < 60:
+			seeing_orb = isFront
+			emit_signal("see_eye")
+		else:
+			emit_signal("finish_see_eye")
+			seeing_orb = false
 
+#		yield(tween_tp, "tween_all_completed")
 
 func _on_use_e_ability_use():
 	pass
@@ -69,45 +74,25 @@ func _on_use_e_ability_use():
 #		tween_tp.start()
 #		yield(tween_tp, "tween_all_completed")
 
-#func _on_Tween_completed(object, key):
-#	print("completed")
-#	if current_point == backpoints.size()-1:
-#		backpoints.clear()
-#		current_point = 0
-#		is_tweening = false
-#		return
-#	current_point += 1
-##	emit_signal("use_e_ability")
-
-
-func is_seeing_orb_and_in_range():
-	var current_value = stencil.get_shader_param("beer_factor")
-	if seeing_orb and in_range_orb:
-		tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 1.5, 0.5,Tween.TRANS_LINEAR)
-	else:
-		tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
+func _on_see_eye():
+	var current_shader_value = stencil.get_shader_param("beer_factor")
+	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_shader_value, 0.7, 0.5,Tween.TRANS_LINEAR)
 	tween_tp.start()
-	yield(tween_tp,"tween_all_completed")
-	
-func _on_seeing_reyna_orb():
-	seeing_orb = true
+	yield(tween_tp, "tween_all_completed")
+
+func _on_finish_see_eye():
+	var current_shader_value = stencil.get_shader_param("beer_factor")
+	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_shader_value, 0.0, 0.5,Tween.TRANS_LINEAR)
+	tween_tp.start()
+	yield(tween_tp, "tween_all_completed")
+
+func _on_eye_thrown(eye):
+	reyna_eye = eye
+	blind_type = eye.blind_type
 #	var current_value = stencil.get_shader_param("beer_factor")
 #	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 1.5, 0.5,Tween.TRANS_LINEAR)
 #	tween_tp.start()
 #	yield(tween_tp,"tween_all_completed")
-
-func _on_finish_seeing_reyna_orb():
-	seeing_orb = false
-#	var current_value = stencil.get_shader_param("beer_factor")
-#	tween_tp.interpolate_method(self,"interpolate_reyna_orb_effect", current_value, 0.0, 0.5,Tween.TRANS_LINEAR)
-#	tween_tp.start()
-#	yield(tween_tp,"tween_all_completed")
-
-func _on_reyna_orb_range():
-	in_range_orb = true
-	
-func _on_reyna_orb_exit_range():
-	in_range_orb = false
 
 func interpolate_reyna_orb_effect(value):
 	stencil.set_shader_param("beer_factor", value)
